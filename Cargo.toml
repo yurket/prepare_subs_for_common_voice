@@ -1,0 +1,7 @@
+[package]
+name = "mozilla_common_voice_subs"
+version = "0.1.0"
+authors = ["yurket <yurket2006@yandex.ru>"]
+edition = "2018"
+
+[dependencies]
