@@ -11,3 +11,13 @@ Sentences are from opensubtitles.org. Particulary from [page](https://www.opensu
 * No Foreign letters. Letters must be valid in the language being spoken.
 * Length. Sentences must be 14 words or less.
 
+
+## More todos
+
+* remove all non-russian text (not only ascii)
+* Fix a bug with skipping first letter of the first sentence
+
+
+## Ideas
+
+* remove all non-russian names?

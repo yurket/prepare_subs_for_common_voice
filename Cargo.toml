@@ -5,3 +5,4 @@ authors = ["yurket <yurket2006@yandex.ru>"]
 edition = "2018"
 
 [dependencies]
+colored = "1.8"
