@@ -1,4 +1,5 @@
 use std::fs;
+use std::path::Path;
 
 use colored::*;
 
@@ -41,9 +42,15 @@ fn check_string_conformance(s: &str) -> bool {
     }
 
     if s.contains("р-р-р") {
-        println!("{}: {}", "skipping due \"р-р-р\"".red(), s);
+        println!("{}: {}", "skipping due \"р-р-р\"".yellow(), s);
         return false;
     }
+
+    if s.contains("…") {
+        println!("{}: {}", "skipping due \"…\"".yellow(), s);
+        return false;
+    }
+
 
     println!("ok: {}", s);
     true
@@ -53,10 +60,13 @@ fn save_valid_sentences(filename: &str, valid_sentences: Vec<&str>) {
     fs::write(filename, valid_sentences.join("\n"));
 }
 
-fn main() {
-    let filename = "/home/lite/!_coding/rust/mozilla_common_voice_subs/Rebellion.S02E05.720p.WEB-DL.srt";
-    // let filename = "test.srt";
-    let content = fs::read_to_string(filename).expect("Something went wrong reading the file");
+fn collect_valid_sentences_from_srt(filename: &str) {
+    assert!(!filename.is_empty(), "Error: Empty filename");
+
+    let path = Path::new(filename).canonicalize().unwrap();
+    assert!(path.is_file(), "Error: Wrong file type");
+
+    let content = fs::read_to_string(&path).expect("Something went wrong reading the file");
 
     let mut chunks: Vec<String> = Vec::new();
     for subtitle_chunk in content.split("\r\n\r\n") {
@@ -95,5 +105,40 @@ fn main() {
         }
     }
 
-    save_valid_sentences("out.txt", valid_sentences);
+    let out_filename = path.file_stem().unwrap().to_str().unwrap().to_owned() + "_out.txt";
+    let out_path = path.with_file_name(out_filename);
+    save_valid_sentences(&out_path.to_str().unwrap(), valid_sentences);
+}
+
+fn main() {
+    collect_valid_sentences_from_srt("Rebellion.S02E01.720p.WEB-DL.srt")
+}
+
+
+
+#[cfg(test)]
+mod tests {
+    // Note this useful idiom: importing names from outer (for mod tests) scope.
+    use super::*;
+
+    #[test]
+    #[should_panic(expected = "Error: Empty filename")]
+    fn test_empty_filename() {
+        collect_valid_sentences_from_srt("")
+    }
+
+    #[test]
+    #[should_panic]
+    fn test_file_not_exists() {
+        let filename = "some_non_existant_filename";
+        collect_valid_sentences_from_srt(&filename)
+    }
+
+    #[test]
+    #[should_panic(expected = "Error: Wrong file type")]
+    fn test_dir() {
+        let filename = "/tmp";
+        collect_valid_sentences_from_srt(&filename)
+    }
+
 }
