@@ -1,7 +1,13 @@
+use std::env;
 use std::fs;
 use std::path::Path;
 
 use colored::*;
+
+
+fn count_quotes(s: &str) -> usize {
+    s.chars().filter(|&c| c == '"').collect::<Vec<char>>().len()
+}
 
 fn check_string_conformance(s: &str) -> bool {
     if s.len() == 0 {
@@ -51,6 +57,10 @@ fn check_string_conformance(s: &str) -> bool {
         return false;
     }
 
+    if count_quotes(s) % 2 != 0 {
+        println!("{}: {}", "skipping due to odd number of quotes".yellow(), s);
+        return false;
+    }
 
     println!("ok: {}", s);
     true
@@ -111,7 +121,7 @@ fn collect_valid_sentences_from_srt(filename: &str) {
 }
 
 fn main() {
-    collect_valid_sentences_from_srt("Rebellion.S02E01.720p.WEB-DL.srt")
+    collect_valid_sentences_from_srt(&env::args().nth(1).unwrap());
 }
 
 
@@ -141,4 +151,9 @@ mod tests {
         collect_valid_sentences_from_srt(&filename)
     }
 
+    #[test]
+    fn test_odd_quotes_number() {
+        let s = r#"При встрече с тобой я поняла, что все эти годы любила только тебя"."#;
+        assert_eq!(check_string_conformance(s), false)
+    }
 }
